@@ -1,7 +1,8 @@
 const fetch = require('node-fetch');
 const metadata = require('./package');
-const base_url = `https://discordapp.com/api/guilds/${guild_id}`;
 const { readStoredData, writeOutput } = require('./storeUtils');
+const { CLIENT_TOKEN, GUILD_ID } = require('./credentials');
+const base_url = `https://discordapp.com/api/guilds/${GUILD_ID}`;
 
 console.log("Phantom Wire - User Role Monitor");
 
@@ -11,7 +12,7 @@ console.log(`Script runtime is ${runtime}`);
 let roleMap;
 
 const customHeaders = {
-    'Authorization': 'Bot ' + client_token,
+    'Authorization': 'Bot ' + CLIENT_TOKEN,
     'Content-Type': 'application/json',
     'User-agent': `${metadata.name} (${metadata.url || ''}, ${metadata.version})`
 };
