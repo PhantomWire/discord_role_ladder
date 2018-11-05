@@ -40,8 +40,6 @@ async function buildRoleMap() {
 }
 
 async function main() {
-  const pastData = readStoredData();
-  console.log(pastData);
   roleMap = await buildRoleMap();
   const members = await getMembers();
   const output = processMembers(members);
@@ -49,10 +47,12 @@ async function main() {
 }
 
 function processMembers(memberList) {
-  let outputMap = {};
+  const pastData = readStoredData();
+  let outputMap = Object.assign({}, pastData);
   for(let member of memberList) {
+    const existingRoles = ((outputMap[member.user.username] || []).roles || []) || [];
     outputMap[member.user.username] = {
-      roles: processRoles(member.roles),
+      roles: processRoles({ newRoles: member.roles, existingRoles : existingRoles }),
       memberSince: member.joined_at,
       lastSeen: runtime
     }
@@ -60,16 +60,30 @@ function processMembers(memberList) {
   return outputMap;
 }
 
-function processRoles(roles) {
-  let roleArr = [];
-  for(const role of roles) {
-    roleArr.push(roleMap[role])
+function processRoles(options) {
+  const { newRoles = [], existingRoles = []} = options;
+  let roleStringArr = [];
+  for(const role of newRoles) {
+    roleStringArr.push(roleMap[role])
   }
-  return roleArr;
+
+  let outputArr = [];
+  for(const roleStr of roleStringArr) {
+    const roleSeenAlready = existingRoles.find(el => el.name === roleStr);
+    if(roleSeenAlready) {
+      const outputObj = Object.assign({}, roleSeenAlready, { lastSeen : runtime });
+      outputObj.seenCount++;
+      outputArr.push(outputObj);
+    } else {
+      outputArr.push({
+        name: roleStr,
+        firstSeen : runtime,
+        lastSeen: runtime,
+        seenCount: 1
+      });
+    }
+  }
+  return outputArr;
 }
 
 main();
-
-module.exports = {
-  readStoredData : readStoredData()
-};
