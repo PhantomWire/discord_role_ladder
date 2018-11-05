@@ -1,9 +1,7 @@
 const fetch = require('node-fetch');
-const guild_id = "";
-const client_token = "";
 const metadata = require('./package');
 const base_url = `https://discordapp.com/api/guilds/${guild_id}`;
-const fs = require('fs');
+const { readStoredData, writeOutput } = require('./storeUtils');
 
 console.log("Phantom Wire - User Role Monitor");
 
@@ -41,6 +39,8 @@ async function buildRoleMap() {
 }
 
 async function main() {
+  const pastData = readStoredData();
+  console.log(pastData);
   roleMap = await buildRoleMap();
   const members = await getMembers();
   const output = processMembers(members);
@@ -67,15 +67,8 @@ function processRoles(roles) {
   return roleArr;
 }
 
-function readStoredData() {
-
-}
-
-function writeOutput(data) {
-  fs.writeFile(`phantomRoles.json`, JSON.stringify(data), function(err, data){
-    if (err) console.log(err);
-    console.log("Successfully Written to File.");
-  });
-}
-
 main();
+
+module.exports = {
+  readStoredData : readStoredData()
+};

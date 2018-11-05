@@ -11,6 +11,7 @@
   "author": "librasean",
   "license": "ISC",
   "dependencies": {
+    "express": "^4.16.4",
     "node-fetch": "^2.2.1"
   }
 }
